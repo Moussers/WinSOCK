@@ -122,7 +122,145 @@ CONST CHAR* FormatWSALastError() {
         return "WSAESHUTDOWN: Cannot send after socket shutdown.";
         break;
     case WSAETOOMANYREFS:
-        return "";
+        return "WSAETOOMANYREFS: Too many references.";
+        break;
+    case WSAETIMEDOUT:
+        return "WSAETIMEDOUT: Connection timed out.";
+        break;
+    case WSAECONNREFUSED:
+        return "WSAECONNREFUSED: Connection refused.";
+        break;
+    case WSAELOOP:
+        return "WSAELOOP: Cannot translate name.";
+        break;
+    case WSAENAMETOOLONG:
+        return "WSAENAMETOOLONG: Name too long.";
+        break;
+    case WSAEHOSTDOWN:
+        return "WSAEHOSTDOWN: Host is down.";
+        break;
+    case WSAEHOSTUNREACH:
+        return "WSAEHOSTUNREACH: No route to host.";
+        break;
+    case WSAENOTEMPTY:
+        return "WSAENOTEMPTY: Directory not empty.";
+        break;
+    case WSAEPROCLIM:
+        return "WSAEPROCLIM: Too many process.";
+        break;
+    case WSAEUSERS:
+        return "WSAEUSERS: Use quota exceeded.";
+        break;
+    case WSAEDQUOT:
+        return "WSAEDQUOT: Disk quota exceeded.";
+        break;
+    case WSAESTALE:
+        return "WSAESTALE: Stale file handle reference.";
+        break;
+    case WSAEREMOTE:
+        return "WSAEREMOTE: Item is remote.";
+        break;
+    case WSASYSNOTREADY:
+        return "WSASYSNOTREADY: Network subsystem is unavailable.";
+        break;
+    case WSAVERNOTSUPPORTED:
+        return "WSAVERNOTSUPPORTED: Winsock.dll version out of range.";
+        break;
+    case WSANOTINITIALISED:
+        return "WSANOTINITIALISED: Succesful WSAStartup not yet performed.";
+        break;
+    case WSAEDISCON:
+        return "WSAEDISCON: Graceful shutdown in progress";
+        break;
+    case WSAENOMORE:
+        return "WSAENOMORE: No more results.";
+        break;
+    case WSAECANCELLED:
+        return "WSAECANCELLED: Call has been canceled.";
+        break;
+    case WSAEINVALIDPROCTABLE:
+        return "WSAEINVALIDPROCTABLE: Procedure call table is invalid.";
+        break;
+    case WSAEINVALIDPROVIDER:
+        return "WSAEINVALIDPROVIDER: Service provider is invalid.";
+        break;
+    case WSAEPROVIDERFAILEDINIT:
+        return "WSAEPROVIDERFAILEDINIT: Service provider failed to initialize.";
+        break;
+    case WSASYSCALLFAILURE:
+        return "WSASYSCALLFAILURE: System call failure.";
+        break;
+    case WSASERVICE_NOT_FOUND:
+        return "WSASERVICE_NOT_FOUND: Sevice not found.";
+        break;
+    case WSATYPE_NOT_FOUND:
+        return "WSATYPE_NOT_FOUND: Class type not found.";
+        break;
+    case WSA_E_NO_MORE:
+        return "WSA_E_NO_MORE: No more results.";
+        break;
+    case WSA_E_CANCELLED:
+        return "WSA_E_CANCELLED: Call was canceled.";
+        break;
+    case WSAEREFUSED:
+        return "WSAEREFUSED: Database query was refused.";
+        break;
+    case WSAHOST_NOT_FOUND:
+        return "WSAHOST_NOT_FOUND: Host not found.";
+        break;
+    case WSATRY_AGAIN:
+        return "WSATRY_AGAIN: Nonauthoritative host not found.";
+        break;
+    case WSANO_RECOVERY:
+        return "WSANO_RECOVERY: This is a nonrecoverable error.";
+        break;
+    case WSANO_DATA:
+        return "WSANO_DATA: Valid name, no data record of requested type.";
+        break;
+    case WSA_QOS_RECEIVERS:
+        return "WSA_QOS_RECEIVERS: QoS receivers.";
+        break;
+    case WSA_QOS_SENDERS:
+        return "WSA_QOS_SENDERS: No QoS sender.";
+        break;
+    case WSA_QOS_NO_SENDERS:
+        return "WSA_QOS_NO_SENDERS: No QoS senders.";
+        break;
+    case WSA_QOS_NO_RECEIVERS:
+        return "WSA_QOS_NO_RECEIVERS: QoS no recievers.";
+        break;
+    case WSA_QOS_REQUEST_CONFIRMED:
+        return "WSA_QOS_REQUEST_CONFIRMED: QoS request confirmed.";
+        break;
+    case WSA_QOS_ADMISSION_FAILURE:
+        return "WSA_QOS_ADMISSION_FAILURE: QoS admission error.";
+        break;
+    case WSA_QOS_POLICY_FAILURE:
+        return "WSA_QOS_POLICY_FAILURE: QoS admission error.";
+        break;
+    case WSA_QOS_BAD_STYLE:
+        return "WSA_QOS_BAD_STYLE: QoS bad style.";
+        break;
+    case WSA_QOS_BAD_OBJECT:
+        return "WSA_QOS_BAD_OBJECT: QoS bad object.";
+        break;
+    case WSA_QOS_TRAFFIC_CTRL_ERROR:
+        return "WSA_QOS_TRAFFIC_CTRL_ERROR: QoS traffic control error.";
+        break;
+    case WSA_QOS_GENERIC_ERROR:
+        return "WSA_QOS_GENERIC_ERROR: QoS generic error.";
+        break;
+    case WSA_QOS_ESERVICETYPE:
+        return "WSA_QOS_ESERVICETYPE: QoS service type error.";
+        break;
+    case WSA_QOS_EFLOWSPEC:
+        return "WSA_QOS_EFLOWSPEC: QoS flowspec error.";
+        break;
+    case WSA_QOS_EPROVSPECBUF:
+        return "WSA_QOS_EPROVSPECBUF: Invalid QoS provider buffer.";
+        break;
+    case WSA_QOS_EFILTERSTYLE:
+        return "WSA_QOS_EFILTERSTYLE: Invalid QoS fukter style.";
         break;
     }
 }

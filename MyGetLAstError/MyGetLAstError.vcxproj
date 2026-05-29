@@ -24,6 +24,7 @@
     <ProjectGuid>{52ff2133-8742-4f44-922f-41e94625db2e}</ProjectGuid>
     <RootNamespace>MyGetLAstError</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>MyGetLastError</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
