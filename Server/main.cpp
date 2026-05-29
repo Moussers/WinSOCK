@@ -11,7 +11,7 @@
 using namespace std;
 
 #pragma comment(lib, "WS2_32.lib")
-#pragma comment(lib, "FormatLastError.h")
+#pragma comment(lib, "FormatLastError.lib")
 
 #define PORT	"27015"
 #define BUFFER_LENGTH 1500
@@ -20,10 +20,11 @@ using namespace std;
 void main() 
 {
 	setlocale(LC_ALL, "");
-	cout << "Server" << endl;
+	cout << "SERVER" << endl;
 	//0.0.0.0 - все сетевые IP-адреса
 	DWORD dwError = 0;
 	CHAR szError[256] = {};
+	//1) Init WinSOCK
 	WSADATA wsaData;
 	int iResult;
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -137,7 +138,6 @@ void main()
 	iResult = shutdown(listen_socket, SD_BOTH);
 	dwError = WSAGetLastError();
 	if (iResult == SOCKET_ERROR) cout << "Server shutdown failed with " << FormatLastError(dwError, szError) << endl;
-	
 	closesocket(client_socket);
 	closesocket(listen_socket);
 	WSACleanup();
