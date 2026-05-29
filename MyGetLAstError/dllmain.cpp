@@ -260,7 +260,47 @@ CONST CHAR* FormatWSALastError() {
         return "WSA_QOS_EPROVSPECBUF: Invalid QoS provider buffer.";
         break;
     case WSA_QOS_EFILTERSTYLE:
-        return "WSA_QOS_EFILTERSTYLE: Invalid QoS fukter style.";
+        return "WSA_QOS_EFILTERSTYLE: Invalid QoS fulter style.";
         break;
+    case WSA_QOS_EFILTERTYPE:
+        return "WSA_QOS_EFILTERTYPE: Invalid QoS filter type.";
+        break;
+    case WSA_QOS_EFILTERCOUNT:
+        return "WSA_QOS_EFILTERCOUNT: Incorrect QoS filter count.";
+        break;
+    case WSA_QOS_EOBJLENGTH:
+        return "WSA_QOS_EOBJLENGTH: Invalid QoS object length.";
+        break;
+    case WSA_QOS_EFLOWCOUNT:
+        return "WSA_QOS_EFLOWCOUNT: Incorrect QoS flow count.";
+        break;
+    case WSA_QOS_EUNKOWNPSOBJ:
+        return "WSA_QOS_EUNKOWNPSOBJ: Unrecognized QoS object.";
+        break;
+    case WSA_QOS_EPOLICYOBJ:
+        return "WSA_QOS_EPOLICYOBJ: Invalid QoS policy object.";
+        break;
+    case WSA_QOS_EFLOWDESC:
+        return "WSA_QOS_EFLOWDESC: Invalid QoS flow descriptor.";
+        break;
+    case WSA_QOS_EPSFLOWSPEC:
+        return "WSA_QOS_EPSFLOWSPEC: Invalid QoS provider-specific ";
+        break;
+    case WSA_QOS_EPSFILTERSPEC:
+        return "WSA_QOS_EPSFILTERSPEC: Invalid QoS provider-specific filterspec.";
+        break;
+    case WSA_QOS_ESDMODEOBJ:
+        return "WSA_QOS_ESDMODEOBJ: Invalid QoS shape discard mode object.";
+        break;
+    case WSA_QOS_ESHAPERATEOBJ:
+        return "WSA_QOS_ESHAPERATEOBJ: Invalid QoS shaping rate object.";
+        break;
+    case WSA_QOS_RESERVED_PETYPE:
+        return "WSA_QOS_RESERVED_PETYPE: Reserved policy QoS element type.";
+        break;
+    default: 
+    {
+        return "Unknow error.";
+    }
     }
 }
