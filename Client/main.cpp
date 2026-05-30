@@ -68,10 +68,10 @@ void main()
 		WSACleanup();
 		return;
 	}
-
 	//5)Отправка и получение данных:
 	CHAR sendbuffer[BUFFER_LENGTH] = "Hello Server";
 	CHAR recvbuffer[BUFFER_LENGTH] = {};
+	CHAR hostBuffer[BUFFER_LENGTH];
 	do
 	{
 		iResult = send(connect_socket, sendbuffer, strlen(sendbuffer), 0);
