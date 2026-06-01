@@ -14,3 +14,15 @@ IP Address: 127.0.0.1PORT: 64023
 Time connection: 30-05-2026 22:16:27
 USER 1
 è‡®¢•‚Server(12 Bytes)
+IP Address: 127.0.0.1USER 1
+Hello Server(12 Bytes)
+PORT: 59105
+Time connection: 01-06-2026 18:49:24
+USER 1
+Hello ServerIP Address: (12 Bytes)
+127.0.0.1PORT: 59125
+Time connection: 01-06-2026 18:51:49
+USER 1
+GhbdtnServer(12 Bytes)
+USER 1
+Hello Server(12 Bytes)
