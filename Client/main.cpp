@@ -16,6 +16,7 @@ using namespace std;
 #define PORT "27015"
 #define BUFFER_LENGTH	1500
 
+
 void main() 
 {
 	setlocale(LC_ALL, "");
@@ -69,11 +70,11 @@ void main()
 		return;
 	}
 
-	//5)Отправка и получение данных:
+	//5) Отправка и получение данных:
 	CHAR sendbuffer[BUFFER_LENGTH] = "Hello Server";
-	CHAR recvbuffer[BUFFER_LENGTH] = {};
 	do
 	{
+		CHAR recvbuffer[BUFFER_LENGTH] = {};
 		iResult = send(connect_socket, sendbuffer, strlen(sendbuffer), 0);
 		if (iResult == SOCKET_ERROR)
 		{
@@ -88,19 +89,27 @@ void main()
 		//do
 		//{
 			iResult = recv(connect_socket, recvbuffer, BUFFER_LENGTH, 0);
-			if (iResult > 0)cout << recvbuffer << "(" << iResult << " Bytes)" << endl;
+			if (iResult > 0)
+			{
+				cout << recvbuffer << "(" << iResult << " Bytes)" << endl;
+			}
 			else if (result == 0) cout << "Connection clossed" << endl;
 			else cout << FormatLastError(WSAGetLastError(), szError) << endl;//cout << "Recieve failed:\t"<<WSAGetLastError() << endl;
 		//} while (iResult > 0);
+			ZeroMemory(sendbuffer, BUFFER_LENGTH);
+			SetConsoleCP(1251);
+			//Меняем кодировку на кирилицу
 		cin.getline(sendbuffer, BUFFER_LENGTH);
+		SetConsoleCP(866);
+		//Меняем кодировку на латиницу
 	} while (strcmp(sendbuffer, "exit") != 0);
 
-	iResult = shutdown(connect_socket, SD_BOTH);
+	/*iResult = shutdown(connect_socket, SD_BOTH);
 	if (iResult == SOCKET_ERROR)
 	{
 		cout << FormatLastError(WSAGetLastError(), szError) << endl;
 		cout << "Shutdown failed: " << WSAGetLastError() << endl;
-	}
+	}*/
 	closesocket(connect_socket);
 	freeaddrinfo(result);
 	WSACleanup();
