@@ -166,7 +166,7 @@ void main()
 	//sockaddr_in - структура дя хранения адреса
 	int namelen = sizeof(sockaddr_in);
 	if (!getpeername(client_socket, (sockaddr*)&addr, &namelen)) 
-	//getpeername - позволяет получить данные из сокета (SOCKET) и записать их в указатель sockaddr
+	//getpeername - позволяет получить данные клиента из сокета (SOCKET) и записать их в указатель sockaddr
 	{
 		char clientIP[1024];
 		inet_ntop(AF_INET, &addr.sin_addr, clientIP, 1024);
