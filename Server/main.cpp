@@ -6,6 +6,8 @@
 #include<iostream>
 #include<Windows.h>
 #include<WinSock2.h>
+#include<fstream>
+#include<string>
 #include<WS2tcpip.h>
 #include<iphlpapi.h>
 #include<FormatLastError.h>
@@ -23,6 +25,7 @@ DWORD dwThreadIDs[MAX_CONNECTIONS] = {};
 HANDLE hThreads[MAX_CONNECTIONS] = {};
 
 VOID ClientHandle(SOCKET client_socket);
+VOID RecordingInfoinFile(addrinfo* result);
 
 void main() 
 {
@@ -44,6 +47,27 @@ void main()
 	}
 
 	//2) Параметры подключения:
+	string fileInfo = "ip_server_info.txt";
+	char hostname[256];
+	char port[256];
+	ifstream ifs;
+	ifs.open(fileInfo);
+	if (ifs.is_open()) {
+		//Чтение файла.
+		string hInfo;
+		//getline(ifs, h);
+		ifs >> hInfo;
+		strcpy_s(hostname, hInfo.c_str());
+		//getline(ifs, h);
+		ifs >> hInfo;
+		strcpy_s(port, hInfo.c_str());
+		ifs.close();
+		cout << "IP-адрес: " << hostname << endl << "Порт: " << port << endl;
+	}
+	else {
+		gethostname(hostname, 256);
+		strcpy_s(port, PORT);
+	}
 	addrinfo hints;
 	addrinfo* result;
 	ZeroMemory(&hints, sizeof(hints));
@@ -52,7 +76,10 @@ void main()
 	hints.ai_protocol = IPPROTO_TCP;
 	hints.ai_flags = AI_PASSIVE;
 	dwError = WSAGetLastError();
-	iResult = getaddrinfo(NULL, PORT, &hints, &result);
+	iResult = getaddrinfo(hostname, port, &hints, &result);
+	//getaddrinfo - собирает данные используя название хоста (hostname) и номер порта 
+	//(number port), и пересылает эти данные в переменную resutl идущую второй четвертым
+	//аргументом.
 	if (iResult != 0) 
 	{
 		cout << FormatLastError(dwError, szError) << endl;
@@ -60,6 +87,7 @@ void main()
 		WSACleanup();
 		return;
 	}
+	RecordingInfoinFile(result);
 
 	//3) Создаем сокет для сервера, который он будет постоянно слушать "LISTENING":
 	SOCKET listen_socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
@@ -167,4 +195,18 @@ VOID ClientHandle(SOCKET client_socket)
 	//клиент (client_socket)
 	dwError = WSAGetLastError();
 	if (iResult == SOCKET_ERROR) cout << "Client shutdown failed with " << FormatLastError(dwError, szError) << endl;
+}
+
+VOID RecordingInfoinFile(addrinfo* result)
+{
+	sockaddr_in* addrServ = (sockaddr_in*)(result->ai_addr);
+	//ai_addr - содержит указатель на sockaddr*
+	ofstream ofst;
+	ofst.open("ip_server_info.txt");
+	string ipServer = inet_ntoa(addrServ->sin_addr);
+	int portServ = ntohs(addrServ->sin_port);
+	ofst << ipServer;
+	ofst << '\n';
+	ofst << portServ;
+	ofst.close();
 }
