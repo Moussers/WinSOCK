@@ -4,6 +4,7 @@
 #endif // WIN32_LEAN_AND_MEAN
 
 #include<iostream>
+#include<string>
 #include<WinSock2.h>
 #include<WS2tcpip.h>
 #include<iphlpapi.h>
@@ -38,7 +39,11 @@ void main()
 	hinsts.ai_family = AF_INET;
 	hinsts.ai_socktype = SOCK_STREAM;
 	hinsts.ai_protocol = IPPROTO_TCP;
-	iResult = getaddrinfo("127.0.0.1", PORT, &hinsts, &result);
+	string ip_server;
+	cout << "Пожалуйста, введите ip адрес сервера: ";
+	getline(cin,ip_server);
+	//в cin нет автоматического перехода на слеудующую строку в отличие от getline
+	iResult = getaddrinfo(ip_server.c_str(), PORT, &hinsts, &result);
 	if (iResult != 0) 
 	{
 		cout << "getaddressinfo() failed: " << iResult << endl;
@@ -104,12 +109,12 @@ void main()
 		//Меняем кодировку на латиницу
 	} while (strcmp(sendbuffer, "exit") != 0);
 
-	/*iResult = shutdown(connect_socket, SD_BOTH);
+	iResult = shutdown(connect_socket, SD_BOTH);
 	if (iResult == SOCKET_ERROR)
 	{
 		cout << FormatLastError(WSAGetLastError(), szError) << endl;
 		cout << "Shutdown failed: " << WSAGetLastError() << endl;
-	}*/
+	}
 	closesocket(connect_socket);
 	freeaddrinfo(result);
 	WSACleanup();
