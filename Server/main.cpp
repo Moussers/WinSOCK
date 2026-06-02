@@ -78,7 +78,7 @@ void main()
 	dwError = WSAGetLastError();
 	iResult = getaddrinfo(hostname, port, &hints, &result);
 	//getaddrinfo - собирает данные используя название хоста (hostname) и номер порта 
-	//(number port), и пересылает эти данные в переменную resutl идущую второй четвертым
+	//(number port), и пересылает эти данные в переменную resutl идущую четвертым
 	//аргументом.
 	if (iResult != 0) 
 	{

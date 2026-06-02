@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+п»ї#define _CRT_SECURE_NO_WARNINGS
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif // WIN32_LEAN_AND_MEAN
@@ -32,7 +32,7 @@ void main()
 		return;
 	}
 
-	//2) Задаем параметры подключения: IP-адрес сервера и порт
+	//2) Р—Р°РґР°РµРј РїР°СЂР°РјРµС‚СЂС‹ РїРѕРґРєР»СЋС‡РµРЅРёСЏ: IP-Р°РґСЂРµСЃ СЃРµСЂРІРµСЂР° Рё РїРѕСЂС‚
 	struct addrinfo hinsts;
 	struct addrinfo* result;
 	ZeroMemory(&hinsts, sizeof(hinsts));
@@ -40,9 +40,9 @@ void main()
 	hinsts.ai_socktype = SOCK_STREAM;
 	hinsts.ai_protocol = IPPROTO_TCP;
 	string ip_server;
-	cout << "Пожалуйста, введите ip адрес сервера: ";
+	cout << "РџРѕР¶Р°Р»СѓР№СЃС‚Р°, РІРІРµРґРёС‚Рµ ip Р°РґСЂРµСЃ СЃРµСЂРІРµСЂР°: ";
 	getline(cin,ip_server);
-	//в cin нет автоматического перехода на слеудующую строку в отличие от getline
+	//РІ cin РЅРµС‚ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ РїРµСЂРµС…РѕРґР° РЅР° СЃР»РµСѓРґСѓСЋС‰СѓСЋ СЃС‚СЂРѕРєСѓ РІ РѕС‚Р»РёС‡РёРµ РѕС‚ getline
 	iResult = getaddrinfo(ip_server.c_str(), PORT, &hinsts, &result);
 	if (iResult != 0) 
 	{
@@ -51,7 +51,7 @@ void main()
 		return;
 	}
 
-	//3) Создем клиентский сокет:
+	//3) РЎРѕР·РґРµРј РєР»РёРµРЅС‚СЃРєРёР№ СЃРѕРєРµС‚:
 	SOCKET connect_socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (connect_socket == INVALID_SOCKET) 
 	{
@@ -62,7 +62,7 @@ void main()
 		return;
 	}
 	
-	//4) Подключение к Серверу:
+	//4) РџРѕРґРєР»СЋС‡РµРЅРёРµ Рє РЎРµСЂРІРµСЂСѓ:
 	iResult = connect(connect_socket, result->ai_addr, result->ai_addrlen);
 	if (iResult == SOCKET_ERROR) 
 	{
@@ -75,7 +75,7 @@ void main()
 		return;
 	}
 
-	//5) Отправка и получение данных:
+	//5) РћС‚РїСЂР°РІРєР° Рё РїРѕР»СѓС‡РµРЅРёРµ РґР°РЅРЅС‹С…:
 	CHAR sendbuffer[BUFFER_LENGTH] = "Hello Server";
 	do
 	{
@@ -103,10 +103,10 @@ void main()
 		//} while (iResult > 0);
 			ZeroMemory(sendbuffer, BUFFER_LENGTH);
 			SetConsoleCP(1251);
-			//Меняем кодировку на кирилицу
+			//РњРµРЅСЏРµРј РєРѕРґРёСЂРѕРІРєСѓ РЅР° РєРёСЂРёР»РёС†Сѓ
 		cin.getline(sendbuffer, BUFFER_LENGTH);
 		SetConsoleCP(866);
-		//Меняем кодировку на латиницу
+		//РњРµРЅСЏРµРј РєРѕРґРёСЂРѕРІРєСѓ РЅР° Р»Р°С‚РёРЅРёС†Сѓ
 	} while (strcmp(sendbuffer, "exit") != 0);
 
 	iResult = shutdown(connect_socket, SD_BOTH);
