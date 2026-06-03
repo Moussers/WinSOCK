@@ -104,12 +104,12 @@ void main()
 		//Меняем кодировку на латиницу
 	} while (strcmp(sendbuffer, "exit") != 0);
 
-	/*iResult = shutdown(connect_socket, SD_BOTH);
+	iResult = shutdown(connect_socket, SD_BOTH);
 	if (iResult == SOCKET_ERROR)
 	{
 		cout << FormatLastError(WSAGetLastError(), szError) << endl;
 		cout << "Shutdown failed: " << WSAGetLastError() << endl;
-	}*/
+	}
 	closesocket(connect_socket);
 	freeaddrinfo(result);
 	WSACleanup();

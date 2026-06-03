@@ -114,10 +114,24 @@ void main()
 	//6.1) Получаем информацию о сокете клиента:
 	cout << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << endl;
 
+	ClientHandle(client_socket);
+
+	/*iResult = shutdown(listen_socket, SD_RECEIVE);
+	dwError = WSAGetLastError();
+	if (iResult == SOCKET_ERROR) cout << "Server shutdown failed with " << FormatLastError(dwError, szError) << endl;*/
+	closesocket(client_socket);
+	closesocket(listen_socket);
+	WSACleanup();
+}
+
+VOID ClientHandle(SOCKET client_socket) 
+{
+	INT iResult = 0;
+	DWORD dwError;
+	CHAR szError[256] = {};
 	//7) Получение и отправка данных:
-	
 	INT iSendResult = 0;
-	do 
+	do
 	{
 		CHAR sendbuffer[BUFFER_LENGTH] = {};
 		CHAR recvbuffer[BUFFER_LENGTH] = {};
@@ -137,7 +151,7 @@ void main()
 			else cout << "Bytes sent: " << iSendResult << endl;
 		}
 		else if (iResult == 0) cout << "Connection closing.." << endl;
-		else 
+		else
 		{
 			cout << FormatLastError(dwError, szError) << endl;
 			cout << "Receive failed with error: " << WSAGetLastError() << endl;
@@ -148,16 +162,4 @@ void main()
 	iResult = shutdown(client_socket, SD_BOTH);
 	dwError = WSAGetLastError();
 	if (iResult == SOCKET_ERROR) cout << "Client shutdown failed with " << FormatLastError(dwError, szError) << endl;
-
-	/*iResult = shutdown(listen_socket, SD_BOTH);
-	dwError = WSAGetLastError();
-	if (iResult == SOCKET_ERROR) cout << "Server shutdown failed with " << FormatLastError(dwError, szError) << endl;*/
-	closesocket(client_socket);
-	closesocket(listen_socket);
-	WSACleanup();
-}
-
-VOID ClientHandle(SOCKET client_socket) 
-{
-
 }
