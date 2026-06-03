@@ -20,8 +20,11 @@ using namespace std;
 #define MAX_CONNECTIONS 3
 
 SOCKET sockets[MAX_CONNECTIONS] = {};
+//массив сокетов
 DWORD dwThreadIDs[MAX_CONNECTIONS] = {};
+//массив идентификаторов (номеров) потоков
 HANDLE hThreads[MAX_CONNECTIONS] = {};
+//массив дескрипторов потоков
 
 VOID ClientHandle(SOCKET client_socket);
 
@@ -128,7 +131,8 @@ void main()
 				(LPTHREAD_START_ROUTINE)ClientHandle,	//Указатель на функцию которая будет выполняться в потоке
 				(LPVOID) sockets[i],
 				0,
-				&dwThreadIDs[i]
+				&dwThreadIDs[i]		//указатель на массив идентификаторов (номеров) потоков, который будет 
+									//содержать эти потоки
 			);
 			i++;
 		}
