@@ -9,6 +9,7 @@
 #include<WS2tcpip.h>
 #include<iphlpapi.h>
 #include<FormatLastError.h>
+#include<Messages.h>
 using namespace std;
 
 #pragma comment(lib, "WS2_32.lib")
@@ -16,17 +17,12 @@ using namespace std;
 
 #define PORT	"27015"
 #define BUFFER_LENGTH 1500
-#define MAX_CONNECTIONS 5
+#define MAX_CONNECTIONS 3
 
 SOCKET sockets[MAX_CONNECTIONS] = {};
 DWORD dwThreadIDs[MAX_CONNECTIONS] = {};
 HANDLE hThreads[MAX_CONNECTIONS] = {};
 
-//struct ClientParameters
-//{
-//	SOCKET client_socket;
-//	sockaddr_in clinet_address;
-//};
 VOID ClientHandle(SOCKET client_socket);
 
 void main() 
@@ -122,7 +118,6 @@ void main()
 		//6.1) Получаем информацию о сокете клиента:
 		cout << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << endl;
 
-		//ClientHandle(client_socket);
 		if (i < MAX_CONNECTIONS)
 		{
 			sockets[i] = client_socket;
@@ -136,6 +131,21 @@ void main()
 				&dwThreadIDs[i]
 			);
 			i++;
+		}
+		else 
+		{
+			CHAR recv_buffer[BUFFER_LENGTH] = {};
+			iResult = recv(client_socket, recv_buffer, BUFFER_LENGTH, NULL);
+			if (iResult != 0)
+			{
+				FormatLastError(WSAGetLastError(), szError);
+				cout << szError << endl;
+			}
+			else cout << recv_buffer << endl;
+			iResult = send(client_socket, DECLINE_MESSAGE, strlen(DECLINE_MESSAGE), NULL);
+			shutdown(client_socket, SD_BOTH);
+			closesocket(client_socket);
+
 		}
 	} while (true);
 
@@ -156,11 +166,11 @@ VOID ClientHandle(SOCKET client_socket)
 	//getpeername - позволяет получить данные клиента из сокета (SOCKET) и записать их в указатель sockaddr
 	//третий параметр отвечает за размер буфера имени узла
 	CHAR szName[32] = {};
-	//sprintf(szName, "%s:%d\t", inet_ntoa(cleint_address.sin_addr), ntohs(cleint_address.sin_port));
+	sprintf(szName, "%s:%d - ", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
 	cout << "Client connected:\t" <<szName << "\tSOCKET:\t" << client_socket << endl;
 	INT iResult = 0;
 	DWORD dwError;
-	CHAR szError[256] = {};
+	CHAR sz_client_address[256] = {};
 	//7) Получение и отправка данных:
 	INT iSendResult = 0;
 	do
@@ -171,12 +181,12 @@ VOID ClientHandle(SOCKET client_socket)
 		dwError = WSAGetLastError();
 		if (iResult > 0)
 		{
-			cout << recvbuffer << "(" << strlen(recvbuffer) << " Bytes)" << endl;
+			cout << sz_client_address << recvbuffer << "(" << strlen(recvbuffer) << " Bytes)" << endl;
 			iSendResult = send(client_socket, recvbuffer, strlen(recvbuffer), 0);
 			dwError = WSAGetLastError();
 			if (iSendResult == SOCKET_ERROR)
 			{
-				cout << FormatLastError(dwError, szError) << endl;
+				cout << FormatLastError(dwError, sz_client_address) << endl;
 				cout << "Send failed with error" << WSAGetLastError() << endl;
 				closesocket(client_socket);
 			}
@@ -185,7 +195,7 @@ VOID ClientHandle(SOCKET client_socket)
 		else if (iResult == 0) cout << "Connection closing.." << endl;
 		else
 		{
-			cout << FormatLastError(dwError, szError) << endl;
+			cout << FormatLastError(dwError, sz_client_address) << endl;
 			cout << "Receive failed with error: " << WSAGetLastError() << endl;
 			closesocket(client_socket);
 		}
@@ -193,6 +203,6 @@ VOID ClientHandle(SOCKET client_socket)
 
 	iResult = shutdown(client_socket, SD_BOTH);
 	dwError = WSAGetLastError();
-	if (iResult == SOCKET_ERROR) cout << "Client shutdown failed with " << FormatLastError(dwError, szError) << endl;
+	if (iResult == SOCKET_ERROR) cout << "Client shutdown failed with " << FormatLastError(dwError, sz_client_address) << endl;
 	closesocket(client_socket);
 }
