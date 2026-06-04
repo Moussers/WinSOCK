@@ -21,12 +21,10 @@ using namespace std;
 
 SOCKET sockets[MAX_CONNECTIONS] = {};
 //массив сокетов
-DWORD dwThreadIDs[MAX_CONNECTIONS] = {};
-//массив идентификаторов (номеров) потоков
 HANDLE hThreads[MAX_CONNECTIONS] = {};
 //массив дескрипторов потоков
 
-VOID ClientHandle(SOCKET client_socket);
+VOID ClientHandle(SOCKET* client_socket);
 
 void main() 
 {
@@ -46,7 +44,12 @@ void main()
 		cout << "WSASturtup failed: " << iResult << endl;
 		return;
 	}
-
+	for (int i = 0; i < MAX_CONNECTIONS; ++i) 
+	{
+		sockets[i] = INVALID_SOCKET;
+		//INVALID_SOCKET - недействительный сокет, неинициализированный
+		//Обнуляем сокеты
+	}
 	//2) Параметры подключения:
 	addrinfo hints;
 	addrinfo* result;
@@ -93,6 +96,7 @@ void main()
 
 	//5) Запускаем прослушивание сокета:
 	if (listen(listen_socket, MAX_CONNECTIONS) == SOCKET_ERROR) 
+	//backlog - задает максимальное количество подключенний
 	{
 		dwError = WSAGetLastError();
 		cout << FormatLastError(dwError, szError) << endl;
@@ -120,7 +124,8 @@ void main()
 		
 		//6.1) Получаем информацию о сокете клиента:
 		cout << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << endl;
-
+		for (i = 0; i < MAX_CONNECTIONS && sockets[i] != INVALID_SOCKET; ++i);
+		//Ищем не инициализированный сокет
 		if (i < MAX_CONNECTIONS)
 		{
 			sockets[i] = client_socket;
@@ -129,12 +134,11 @@ void main()
 				NULL,	//Security attrebutes
 				0,		//Stack Size
 				(LPTHREAD_START_ROUTINE)ClientHandle,	//Указатель на функцию которая будет выполняться в потоке
-				(LPVOID) sockets[i],
+				(LPVOID) &(sockets[i]),
 				0,
-				&dwThreadIDs[i]		//указатель на массив идентификаторов (номеров) потоков, который будет 
-									//содержать эти потоки
+				NULL		//указатель на массив идентификаторов (номеров) потоков, который будет 
+							//содержать эти потоки
 			);
-			i++;
 		}
 		else 
 		{
@@ -161,14 +165,15 @@ void main()
 	WSACleanup();
 }
 
-VOID ClientHandle(SOCKET client_socket) 
+VOID ClientHandle(SOCKET* client_socket) 
 {
 	sockaddr_in client_address;
 	client_address.sin_family = AF_INET;
 	INT namelen = sizeof(client_address);
-	getpeername(client_socket, (sockaddr*) &client_address, &namelen);
+	getpeername(*client_socket, (sockaddr*) &client_address, &namelen);
 	//getpeername - позволяет получить данные клиента из сокета (SOCKET) и записать их в указатель sockaddr
-	//третий параметр отвечает за размер буфера имени узла
+	//третий параметр отвечает за размер буфера sockaddr*
+	//socladdr* - структура которая хранит данные о сокете
 	CHAR szName[32] = {};
 	sprintf(szName, "%s:%d - ", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
 	cout << "Client connected:\t" <<szName << "\tSOCKET:\t" << client_socket << endl;
@@ -181,18 +186,18 @@ VOID ClientHandle(SOCKET client_socket)
 	{
 		CHAR sendbuffer[BUFFER_LENGTH] = {};
 		CHAR recvbuffer[BUFFER_LENGTH] = {};
-		iResult = recv(client_socket, recvbuffer, BUFFER_LENGTH, 0);
+		iResult = recv(*client_socket, recvbuffer, BUFFER_LENGTH, 0);
 		dwError = WSAGetLastError();
 		if (iResult > 0)
 		{
 			cout << sz_client_address << recvbuffer << "(" << strlen(recvbuffer) << " Bytes)" << endl;
-			iSendResult = send(client_socket, recvbuffer, strlen(recvbuffer), 0);
+			iSendResult = send(*client_socket, recvbuffer, strlen(recvbuffer), 0);
 			dwError = WSAGetLastError();
 			if (iSendResult == SOCKET_ERROR)
 			{
 				cout << FormatLastError(dwError, sz_client_address) << endl;
 				cout << "Send failed with error" << WSAGetLastError() << endl;
-				closesocket(client_socket);
+				closesocket(*client_socket);
 			}
 			else cout << "Bytes sent: " << iSendResult << endl;
 		}
@@ -201,12 +206,13 @@ VOID ClientHandle(SOCKET client_socket)
 		{
 			cout << FormatLastError(dwError, sz_client_address) << endl;
 			cout << "Receive failed with error: " << WSAGetLastError() << endl;
-			closesocket(client_socket);
+			closesocket(*client_socket);
 		}
 	} while (iResult > 0);
 
-	iResult = shutdown(client_socket, SD_BOTH);
+	iResult = shutdown(*client_socket, SD_BOTH);
 	dwError = WSAGetLastError();
 	if (iResult == SOCKET_ERROR) cout << "Client shutdown failed with " << FormatLastError(dwError, sz_client_address) << endl;
-	closesocket(client_socket);
+	closesocket(*client_socket);
+	*client_socket = INVALID_SOCKET;
 }
