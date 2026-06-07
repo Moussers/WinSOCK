@@ -17,6 +17,34 @@ using namespace std;
 #define PORT "27015"
 #define BUFFER_LENGTH	1500
 
+void getMessages(SOCKET* connect_socket)
+{
+	do
+	{
+		CHAR recvbuffer[BUFFER_LENGTH] = {};
+		CHAR szError[256] = {};
+		int iResult = recv(*connect_socket, recvbuffer, BUFFER_LENGTH, 0);
+		//recv - функция которая позволяет получить сообщение по связанному сокету, к примеру: один 
+		//участник получает собщение от второго участника, или сервера
+		//SOCKET - аргумент принимающий сокет через который идёт содениение
+		//*buf - указатель на массив в который будет загружено полученое сообщение
+		//len - размер массива, его длина.
+		//flags - флаг на особое повдение функции
+		if (iResult > 0)
+		{
+			cout << recvbuffer << "(" << iResult << " Bytes)" << endl;
+		}
+		else if (iResult == 0) cout << "Connection clossed" << endl;
+		else cout << FormatLastError(WSAGetLastError(), szError) << endl;
+		if (strcmp(recvbuffer, DECLINE_MESSAGE) == 0)
+		{
+			system("PAUSE");
+			//ожидает нажатие клавиши.
+			break;
+		}
+	} while (*connect_socket != INVALID_SOCKET);
+}
+
 
 void main() 
 {
@@ -70,12 +98,24 @@ void main()
 		WSACleanup();
 		return;
 	}
+	CreateThread(NULL, 2048, (LPTHREAD_START_ROUTINE)getMessages, (LPVOID)&connect_socket, 0, NULL);
 
 	//5) Отправка и получение данных:
-	CHAR sendbuffer[BUFFER_LENGTH] = "Hello Server";
+	SetConsoleCP(1251);
+	cout << "Введите ваше имя: ";
+	CHAR sendbuffer[BUFFER_LENGTH] = "My Nick";
+	cin.getline(sendbuffer, BUFFER_LENGTH);
+	if (!strcmp(sendbuffer, "")) 
+	{
+		sockaddr_in* addrIn = (sockaddr_in*)result->ai_addr;
+		//sockaddr_in* - структура содержащая ip адрес
+		CHAR ipAddr[256];
+		inet_ntop(AF_INET, &(addrIn->sin_addr), sendbuffer, BUFFER_LENGTH);
+	}
 	do
 	{
-		CHAR recvbuffer[BUFFER_LENGTH] = {};
+		SetConsoleCP(1251);
+		//Меняем кодировку на кирилицу
 		iResult = send(connect_socket, sendbuffer, strlen(sendbuffer), 0);
 		//send - функция которая позволяет отправить сообщение по связанному сокету, к примеру: один 
 		//участник отправляет собщение второму участнику, или серверу
@@ -94,31 +134,7 @@ void main()
 			return;
 		}
 		cout << "Bytes sent: " << iResult << endl;
-		//do
-		//{
-			iResult = recv(connect_socket, recvbuffer, BUFFER_LENGTH, 0);
-			//recv - функция которая позволяет получить сообщение по связанному сокету, к примеру: один 
-			//участник получает собщение от второго участника, или сервера
-			//SOCKET - аргумент принимающий сокет через который идёт содениение
-			//*buf - указатель на массив в который будет загружено полученое сообщение
-			//len - размер массива, его длина.
-			//flags - флаг на особое повдение функции
-			if (iResult > 0)
-			{
-				cout << recvbuffer << "(" << iResult << " Bytes)" << endl;
-			}
-			else if (result == 0) cout << "Connection clossed" << endl;
-			else cout << FormatLastError(WSAGetLastError(), szError) << endl;//cout << "Recieve failed:\t"<<WSAGetLastError() << endl;
-		//} while (iResult > 0);
-			if (strcmp(recvbuffer, DECLINE_MESSAGE) == 0)
-			{
-				system("PAUSE");
-				//ожидает нажатие клавиши.
-				break;
-			}
-			ZeroMemory(sendbuffer, BUFFER_LENGTH);
-			SetConsoleCP(1251);
-			//Меняем кодировку на кирилицу
+		ZeroMemory(sendbuffer, BUFFER_LENGTH);
 		cin.getline(sendbuffer, BUFFER_LENGTH);
 		SetConsoleCP(866);
 		//Меняем кодировку на латиницу
