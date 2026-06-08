@@ -32,11 +32,12 @@ INT GetSlotIndex(DWORD dwID);
 VOID Shift(INT start);
 //VOID Release(SOCKET client_socket);
 VOID ShowActiveClients();
+VOID Broadcast(CHAR sz_message[], DWORD dwID);
 
 void main() 
 {
 	setlocale(LC_ALL, "");
-	cout << "SERVER" << endl;
+	std::cout << "SERVER" << endl;
 	//0.0.0.0 - все сетевые IP-адреса
 	DWORD dwError = 0;
 	CHAR szError[256] = {};
@@ -47,8 +48,8 @@ void main()
 	dwError = WSAGetLastError();
 	if (iResult != 0) 
 	{
-		cout << FormatLastError(dwError, szError) << endl;
-		cout << "WSASturtup failed: " << iResult << endl;
+		std::cout << FormatLastError(dwError, szError) << endl;
+		std::cout << "WSASturtup failed: " << iResult << endl;
 		return;
 	}
 
@@ -64,8 +65,8 @@ void main()
 	iResult = getaddrinfo(NULL, PORT, &hints, &result);
 	if (iResult != 0) 
 	{
-		cout << FormatLastError(dwError, szError) << endl;
-		cout << "getaddrinfo() failed: " << iResult << endl;
+		std::cout << FormatLastError(dwError, szError) << endl;
+		std::cout << "getaddrinfo() failed: " << iResult << endl;
 		WSACleanup();
 		return;
 	}
@@ -75,8 +76,8 @@ void main()
 	dwError = WSAGetLastError();
 	if (listen_socket == INVALID_SOCKET) 
 	{
-		cout << FormatLastError(dwError, szError) << endl;
-		cout << "Listen socket error: " << WSAGetLastError() << endl;
+		std::cout << FormatLastError(dwError, szError) << endl;
+		std::cout << "Listen socket error: " << WSAGetLastError() << endl;
 		freeaddrinfo(result);
 		WSACleanup();
 		return;
@@ -87,8 +88,8 @@ void main()
 	dwError = GetLastError();
 	if (iResult == SOCKET_ERROR) 
 	{
-		cout << FormatLastError(dwError, szError) << endl;
-		cout << "Bind failed with error: " << WSAGetLastError() << endl;
+		std::cout << FormatLastError(dwError, szError) << endl;
+		std::cout << "Bind failed with error: " << WSAGetLastError() << endl;
 		closesocket(listen_socket);
 		freeaddrinfo(result);
 		WSACleanup();
@@ -100,8 +101,8 @@ void main()
 	if (listen(listen_socket, MAX_CONNECTIONS) == SOCKET_ERROR) 
 	{
 		dwError = WSAGetLastError();
-		cout << FormatLastError(dwError, szError) << endl;
-		cout << "Listen failed with error: " << WSAGetLastError() << endl;
+		std::cout << FormatLastError(dwError, szError) << endl;
+		std::cout << "Listen failed with error: " << WSAGetLastError() << endl;
 		closesocket(listen_socket);
 		freeaddrinfo(result);
 		WSACleanup();
@@ -120,16 +121,16 @@ void main()
 		dwError = WSAGetLastError();
 		if (client_socket == INVALID_SOCKET)
 		{
-			cout << FormatLastError(dwError, szError) << endl;
-			cout << "Accept failed with error: " << WSAGetLastError() << ":" << endl;
+			std::cout << FormatLastError(dwError, szError) << endl;
+			std::cout << "Accept failed with error: " << WSAGetLastError() << ":" << endl;
 		}
 		
 		//6.1) Получаем информацию о сокете клиента:
-		cout << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << endl;
+		std::cout << inet_ntoa(client_address.sin_addr) << ":" << ntohs(client_address.sin_port) << endl;
 		if (g_activeClients < MAX_CONNECTIONS)
 		{
 			sockets[g_activeClients] = client_socket;
-			cout << client_socket << "\t" << endl;
+			std::cout << client_socket << "\t" << endl;
 			hThreads[g_activeClients] = CreateThread(
 				NULL,	//Security attrebutes
 				0,		//Stack Size
@@ -148,9 +149,9 @@ void main()
 			if (iResult != 0)
 			{
 				FormatLastError(WSAGetLastError(), szError);
-				cout << szError << endl;
+				std::cout << szError << endl;
 			}
-			else cout << recv_buffer << endl;
+			else std::cout << recv_buffer << endl;
 			iResult = send(client_socket, DECLINE_MESSAGE, strlen(DECLINE_MESSAGE), NULL);
 			shutdown(client_socket, SD_BOTH);
 			closesocket(client_socket);
@@ -194,12 +195,14 @@ VOID ClientHandle(SOCKET client_socket)
 	getpeername(client_socket, (sockaddr*) &client_address, &namelen);
 	//getpeername - позволяет получить данные клиента из сокета (SOCKET) и записать их в указатель sockaddr
 	//третий параметр отвечает за размер буфера имени узла
-	CHAR szName[32] = {};
-	sprintf(szName, "%s:%d - ", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
-	cout << "Client connected:\t" <<szName << "\tSOCKET:\t" << client_socket << endl;
+	CHAR sz_client_address[32] = {};
+	CHAR sz_client_connected[32] = {};
+	sprintf(sz_client_address, "%s:%d - ", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+	sprintf(sz_client_connected, "%s:%d - ", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
+	//Broadcast(sz_client_connected, GetCurrentThreadId());
+	std::cout << "Client connected:\t" << sz_client_address << "\tSOCKET:\t" <<client_socket<< endl;
 	INT iResult = 0;
 	DWORD dwError;
-	CHAR sz_client_address[256] = {};
 	//7) Получение и отправка данных:
 	INT iSendResult = 0;
 	do
@@ -210,31 +213,32 @@ VOID ClientHandle(SOCKET client_socket)
 		dwError = WSAGetLastError();
 		if (iResult > 0)
 		{
-			cout << sz_client_address << recvbuffer << "(" << strlen(recvbuffer) << " Bytes)" << endl;
+			std::cout << sz_client_address << recvbuffer << "(" << strlen(recvbuffer) << " Bytes)" << endl;
+			Broadcast(recvbuffer, GetCurrentThreadId());
 			iSendResult = send(client_socket, recvbuffer, strlen(recvbuffer), 0);
 			dwError = WSAGetLastError();
 			if (iSendResult == SOCKET_ERROR)
 			{
-				cout << FormatLastError(dwError, sz_client_address) << endl;
-				cout << "Send failed with error" << WSAGetLastError() << endl;
+				std::cout << FormatLastError(dwError, sz_client_address) << endl;
+				std::cout << "Send failed with error" << WSAGetLastError() << endl;
 				closesocket(client_socket);
 			}
-			else cout << "Bytes sent: " << iSendResult << endl;
+			else std::cout << "Bytes sent: " << iSendResult << endl;
 		}
-		else if (iResult == 0) cout << "Connection closing.." << endl;
+		else if (iResult == 0) std::cout << "Connection closing.." << endl;
 		else
 		{
-			cout << FormatLastError(dwError, sz_client_address) << endl;
-			cout << "Receive failed with error: " << WSAGetLastError() << endl;
+			std::cout << FormatLastError(dwError, sz_client_address) << endl;
+			std::cout << "Receive failed with error: " << WSAGetLastError() << endl;
 			closesocket(client_socket);
 		}
 	} while (iResult > 0);
 	DWORD dwID = GetCurrentThreadId();
 	Shift(GetSlotIndex(dwID));
-	cout << sz_client_address << "left" << endl;
+	std::cout << sz_client_address << "left" << endl;
 	iResult = shutdown(client_socket, SD_BOTH);
 	dwError = WSAGetLastError();
-	if (iResult == SOCKET_ERROR) cout << "Client shutdown failed with " << FormatLastError(dwError, sz_client_address) << endl;
+	if (iResult == SOCKET_ERROR) std::cout << "Client shutdown failed with " << FormatLastError(dwError, sz_client_address) << endl;
 	closesocket(client_socket);
 	//Release(client_socket);
 	ShowActiveClients();
@@ -270,6 +274,14 @@ VOID ShowActiveClients()
 	GetConsoleScreenBufferInfo(hConsole, &info);
 	COORD cursor = { 1, 25 };
 	SetConsoleCursorPosition(hConsole, cursor);
-	cout << "Количество подключений: " << g_activeClients;
+	std::cout << "Количество подключений: " << g_activeClients;
 	SetConsoleCursorPosition(hConsole, info.dwCursorPosition);
+}
+VOID Broadcast(CHAR sz_message[], DWORD dwID) 
+{
+	for (int i = 0; i < g_activeClients; ++i) 
+	{
+		if (dwThreadIDs[i] != dwID) 
+			send(sockets[i], sz_message, strlen(sz_message), 0);
+	}
 }
