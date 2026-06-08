@@ -9,7 +9,6 @@
 #include<iphlpapi.h>
 #include<FormatLastError.h>
 #include<Messages.h>
-using namespace std;
 
 #pragma comment(lib, "WS2_32.lib")
 #pragma comment(lib, "FormatLastError.lib")
@@ -32,10 +31,10 @@ void getMessages(SOCKET* connect_socket)
 		//flags - флаг на особое повдение функции
 		if (iResult > 0)
 		{
-			cout << recvbuffer << "(" << iResult << " Bytes)" << endl;
+			std::cout << recvbuffer << "(" << iResult << " Bytes)" << std::endl;
 		}
-		else if (iResult == 0) cout << "Connection clossed" << endl;
-		else cout << FormatLastError(WSAGetLastError(), szError) << endl;
+		else if (iResult == 0) std::cout << "Connection clossed" << std::endl;
+		else std::cout << FormatLastError(WSAGetLastError(), szError) << std::endl;
 		if (strcmp(recvbuffer, DECLINE_MESSAGE) == 0)
 		{
 			system("PAUSE");
@@ -49,14 +48,14 @@ void getMessages(SOCKET* connect_socket)
 void main() 
 {
 	setlocale(LC_ALL, "");
-	cout << "CLIENT" << endl;
+	std::cout << "CLIENT" << std::endl;
 	CHAR szError[256] = {};
 	//1) Init WinSOCK:
 	WSADATA wsaData;
 	int iResult = WSAStartup(MAKEWORD(2, 2, ), &wsaData);
 	if (iResult != 0)
 	{
-		cout << "WSAStartup failed: " << iResult << endl;
+		std::cout << "WSAStartup failed: " << iResult << std::endl;
 		return;
 	}
 
@@ -70,7 +69,7 @@ void main()
 	iResult = getaddrinfo("127.0.0.1", PORT, &hinsts, &result);
 	if (iResult != 0) 
 	{
-		cout << "getaddressinfo() failed: " << iResult << endl;
+		std::cout << "getaddressinfo() failed: " << iResult << std::endl;
 		WSACleanup();
 		return;
 	}
@@ -79,8 +78,8 @@ void main()
 	SOCKET connect_socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (connect_socket == INVALID_SOCKET) 
 	{
-		cout << FormatLastError(WSAGetLastError(), szError) << endl;
-		cout << "Socket creation error: " << WSAGetLastError()<<endl;
+		std::cout << FormatLastError(WSAGetLastError(), szError) << std::endl;
+		std::cout << "Socket creation error: " << WSAGetLastError()<<std::endl;
 		freeaddrinfo(result);
 		WSACleanup();
 		return;
@@ -91,8 +90,8 @@ void main()
 	if (iResult == SOCKET_ERROR) 
 	{
 		DWORD dwError = WSAGetLastError();
-		cout << "Unable to connect to Server " << endl;
-		cout << FormatLastError(dwError, szError) << endl;
+		std::cout << "Unable to connect to Server " << std::endl;
+		std::cout << FormatLastError(dwError, szError) << std::endl;
 		closesocket(connect_socket);
 		freeaddrinfo(result);
 		WSACleanup();
@@ -102,15 +101,28 @@ void main()
 
 	//5) Отправка и получение данных:
 	SetConsoleCP(1251);
-	cout << "Введите ваше имя: ";
+	std::cout << "Введите ваше имя: ";
 	CHAR sendbuffer[BUFFER_LENGTH] = "My Nick";
-	cin.getline(sendbuffer, BUFFER_LENGTH);
+	std::cin.getline(sendbuffer, BUFFER_LENGTH);
 	if (!strcmp(sendbuffer, "")) 
+	//strcmp - сравнивает две строки на совпадение, 
+	//или если одна строка длинее другой, то какая из:
+	//положительное, больше 0 - первая строка больше, втоорой
+	//отрицательное, меньше 0 - вторая строка больше, первой
 	{
-		sockaddr_in* addrIn = (sockaddr_in*)result->ai_addr;
-		//sockaddr_in* - структура содержащая ip адрес
-		CHAR ipAddr[256];
-		inet_ntop(AF_INET, &(addrIn->sin_addr), sendbuffer, BUFFER_LENGTH);
+		CONST INT SIZE = 256;
+		CHAR host[SIZE] = {};
+		int res = gethostname(host, SIZE);
+		if (res == 0) 
+		{
+			getaddrinfo(host, PORT, &hinsts, &result);
+			sockaddr_in* addrIn = (sockaddr_in*)result->ai_addr;
+			//sockaddr_in* - структура содержащая ip адрес
+			CHAR ipAddr[256];
+			inet_ntop(AF_INET, &(result->ai_addr), sendbuffer, BUFFER_LENGTH);
+			//ai_addr - содержит адрес сокета, то есть ip-адрес хоста (компьютера), ia_addr относится 
+			//к семейству AF_NET (IPv4), указателю структуры addrinfo*
+		}
 	}
 	do
 	{
@@ -126,16 +138,16 @@ void main()
 		//len - размер массива, его длина.
 		if (iResult == SOCKET_ERROR)
 		{
-			cout << FormatLastError(WSAGetLastError(), szError) << endl;
-			cout << "Send failed:\t" << WSAGetLastError() << endl;
+			std::cout << FormatLastError(WSAGetLastError(), szError) << std::endl;
+			std::cout << "Send failed:\t" << WSAGetLastError() << std::endl;
 			closesocket(connect_socket);
 			freeaddrinfo(result);
 			WSACleanup();
 			return;
 		}
-		cout << "Bytes sent: " << iResult << endl;
+		std::cout << "Bytes sent: " << iResult << std::endl;
 		ZeroMemory(sendbuffer, BUFFER_LENGTH);
-		cin.getline(sendbuffer, BUFFER_LENGTH);
+		std::cin.getline(sendbuffer, BUFFER_LENGTH);
 		SetConsoleCP(866);
 		//Меняем кодировку на латиницу
 	} while (strcmp(sendbuffer, "exit") != 0);
@@ -143,8 +155,8 @@ void main()
 	iResult = shutdown(connect_socket, SD_BOTH);
 	if (iResult == SOCKET_ERROR)
 	{
-		cout << FormatLastError(WSAGetLastError(), szError) << endl;
-		cout << "Shutdown failed: " << WSAGetLastError() << endl;
+		std::cout << FormatLastError(WSAGetLastError(), szError) << std::endl;
+		std::cout << "Shutdown failed: " << WSAGetLastError() << std::endl;
 	}
 	closesocket(connect_socket);
 	freeaddrinfo(result);
