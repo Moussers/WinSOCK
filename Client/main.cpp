@@ -17,6 +17,8 @@ using namespace std;
 #define PORT "27015"
 #define BUFFER_LENGTH	1500
 
+CHAR recvbuffer[BUFFER_LENGTH] = {};
+
 VOID Recieve(SOCKET connect_socket);
 
 void main() 
@@ -87,7 +89,7 @@ void main()
 	CHAR sendbuffer[BUFFER_LENGTH] = "Hello Server";
 	do
 	{
-		CHAR recvbuffer[BUFFER_LENGTH] = {};
+		//CHAR recvbuffer[BUFFER_LENGTH] = {};
 		iResult = send(connect_socket, sendbuffer, strlen(sendbuffer), 0);
 		//send - функция которая позволяет отправить сообщение по связанному сокету, к примеру: один 
 		//участник отправляет собщение второму участнику, или серверу
@@ -106,14 +108,13 @@ void main()
 			return;
 		}
 		cout << "Bytes sent: " << iResult << endl;
-		
-			ZeroMemory(sendbuffer, BUFFER_LENGTH);
-			SetConsoleCP(1251);
-			//Меняем кодировку на кирилицу
+		ZeroMemory(sendbuffer, BUFFER_LENGTH);
+		SetConsoleCP(1251);
+		//Меняем кодировку на кирилицу
 		cin.getline(sendbuffer, BUFFER_LENGTH);
 		SetConsoleCP(866);
 		//Меняем кодировку на латиницу
-	} while (strcmp(sendbuffer, "exit") != 0);
+	} while (strcmp(sendbuffer, "exit") && strcmp(recvbuffer, DECLINE_MESSAGE) != 0);
 
 	iResult = shutdown(connect_socket, SD_BOTH);
 	if (iResult == SOCKET_ERROR)
@@ -130,7 +131,7 @@ VOID Recieve(SOCKET connect_socket)
 {
 	DWORD dwError = 0;
 	CHAR szError[256] = {};
-	CHAR recvbuffer[BUFFER_LENGTH] = {};
+	//CHAR recvbuffer[BUFFER_LENGTH] = {};
 	INT iResult = 0;
 	do
 	{
@@ -148,10 +149,11 @@ VOID Recieve(SOCKET connect_socket)
 	}
 	//else if (result == 0) cout << "Connection clossed" << endl;
 	else cout << FormatLastError(WSAGetLastError(), szError) << endl;
-	} while (true);
+	} while (strcmp(recvbuffer,DECLINE_MESSAGE) != 0);
 	if (strcmp(recvbuffer, DECLINE_MESSAGE) == 0)
 	{
-		system("PAUSE");
+		cout << "Для выхода нажмите Enter" << endl;
+		//system("PAUSE");
 		//ожидает нажатие клавиши.
 		//break;
 	}
