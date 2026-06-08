@@ -116,6 +116,8 @@ void main()
 		if (res == 0) 
 		{
 			getaddrinfo(host, PORT, &hinsts, &result);
+			//getaddrinfo — это версия функции в стандарте ANSI, которая обеспечивает независимый от 
+			//протокола перевод имени хоста в адрес. 
 			sockaddr_in* addrIn = (sockaddr_in*)result->ai_addr;
 			//sockaddr_in* - структура содержащая ip адрес
 			CHAR ipAddr[256];

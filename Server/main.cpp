@@ -63,8 +63,13 @@ void main()
 	addrinfo* result;
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;
+	//AF_INET - вызывающая сторона работает только с протоколом IPv4 и не работает с 
+	//протоколом IPv6
 	hints.ai_socktype = SOCK_STREAM;
+	//i_socktype указывает на то, что вызывающая сторона будет принимать любой тип сокета.
+	//SOCK_STREAM -  вызывающая сторона бужет работать только с протоколом TCP
 	hints.ai_protocol = IPPROTO_TCP;
+	//ai_protocol указывает на то, что вызывающая сторона будет принимать любой протокол.
 	hints.ai_flags = AI_PASSIVE;
 	dwError = WSAGetLastError();
 	iResult = getaddrinfo(NULL, PORT, &hints, &result);
@@ -110,6 +115,11 @@ void main()
 		cout << "Listen failed with error: " << WSAGetLastError() << endl;
 		closesocket(listen_socket);
 		freeaddrinfo(result);
+		//Вся информация, возвращаемая функцией getaddrinfo выделяется динамически,
+		//включая все структуры addrinfo, структуры адресов сокетов и строки канонических 
+		//имен хостов, на которые указывают структуры addrinfo.
+		//Память, выделенная в результате успешного вызова функции getaddrinfo, должна быть 
+		//освобождена функцией freeaddrinfo.
 		WSACleanup();
 		return;
 	}
