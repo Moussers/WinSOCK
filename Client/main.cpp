@@ -89,7 +89,6 @@ void main()
 	CHAR sendbuffer[BUFFER_LENGTH] = "Hello Server";
 	do
 	{
-		//CHAR recvbuffer[BUFFER_LENGTH] = {};
 		iResult = send(connect_socket, sendbuffer, strlen(sendbuffer), 0);
 		//send - функция которая позволяет отправить сообщение по связанному сокету, к примеру: один 
 		//участник отправляет собщение второму участнику, или серверу
@@ -114,7 +113,7 @@ void main()
 		cin.getline(sendbuffer, BUFFER_LENGTH);
 		SetConsoleCP(866);
 		//Меняем кодировку на латиницу
-	} while (strcmp(sendbuffer, "exit") && strcmp(recvbuffer, DECLINE_MESSAGE) != 0);
+	} while (strcmp(sendbuffer, "exit") != 0 && strcmp(recvbuffer, DECLINE_MESSAGE) != 0);
 
 	iResult = shutdown(connect_socket, SD_BOTH);
 	if (iResult == SOCKET_ERROR)
