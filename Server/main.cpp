@@ -196,6 +196,8 @@ VOID ClientHandle(SOCKET client_socket)
 	//третий параметр отвечает за размер буфера имени узла
 	CHAR sz_client_address[32] = {};
 	CHAR sz_client_connected[32] = {};
+	bool nickInit = false;
+	CHAR nickname[256] = {};
 	sprintf(sz_client_address, "%s:%d - ", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
 	sprintf(sz_client_connected, "%s CONNECTED", sz_client_address);
 	//Broadcast(sz_client_connected, GetCurrentThreadId());
@@ -212,18 +214,26 @@ VOID ClientHandle(SOCKET client_socket)
 		dwError = WSAGetLastError();
 		if (iResult > 0)
 		{
-			cout << sz_client_address << recvbuffer << "(" << strlen(recvbuffer) << " Bytes)" << endl;
-			sprintf(sendbuffer, "%s%s", sz_client_address, recvbuffer);
-			Broadcast(sendbuffer, GetCurrentThreadId());
-			//iSendResult = send(client_socket, recvbuffer, strlen(recvbuffer), 0);
-			dwError = WSAGetLastError();
-			if (iSendResult == SOCKET_ERROR)
+			if (nickInit) 
 			{
-				cout << FormatLastError(dwError, sz_client_address) << endl;
-				cout << "Send failed with error" << WSAGetLastError() << endl;
-				closesocket(client_socket);
+				cout << nickname <<" " << recvbuffer << "(" << strlen(recvbuffer) << " Bytes)" << endl;
+				sprintf(sendbuffer, "%s %s", nickname, recvbuffer);
+				Broadcast(sendbuffer, GetCurrentThreadId());
+				//iSendResult = send(client_socket, recvbuffer, strlen(recvbuffer), 0);
+				dwError = WSAGetLastError();
+				if (iSendResult == SOCKET_ERROR)
+				{
+					cout << FormatLastError(dwError, sz_client_address) << endl;
+					cout << "Send failed with error" << WSAGetLastError() << endl;
+					closesocket(client_socket);
+				}
+				else cout << "Bytes sent: " << iSendResult << endl;
 			}
-			else cout << "Bytes sent: " << iSendResult << endl;
+			else 
+			{
+				nickInit = true;
+				strcpy(nickname, recvbuffer);
+			}
 		}
 		else if (iResult == 0) cout << "Connection closing.." << endl;
 		else

@@ -36,13 +36,13 @@ void main()
 	}
 
 	//2) Задаем параметры подключения: IP-адрес сервера и порт
-	struct addrinfo hinsts;
+	struct addrinfo hints;
 	struct addrinfo* result;
-	ZeroMemory(&hinsts, sizeof(hinsts));
-	hinsts.ai_family = AF_INET;
-	hinsts.ai_socktype = SOCK_STREAM;
-	hinsts.ai_protocol = IPPROTO_TCP;
-	iResult = getaddrinfo("127.0.0.1", PORT, &hinsts, &result);
+	ZeroMemory(&hints, sizeof(hints));
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+	iResult = getaddrinfo("127.0.0.1", PORT, &hints, &result);
 	if (iResult != 0) 
 	{
 		cout << "getaddressinfo() failed: " << iResult << endl;
@@ -75,6 +75,36 @@ void main()
 	}
 
 	//5) Отправка и получение данных:
+	SetConsoleCP(1251);
+	cout << "Введите ваше имя: ";
+	CHAR sendbuffer[BUFFER_LENGTH] = "My nickname";
+	cin.getline(sendbuffer, BUFFER_LENGTH);
+	if (!strcmp(sendbuffer, ""))
+		//strcmp - сравнивает две строки на совпадение, 
+		//или если одна строка длинее другой, то какая из:
+		//положительное, больше 0 - первая строка больше, втоорой
+		//отрицательное, меньше 0 - вторая строка больше, первой
+	{
+		CONST INT SIZE = 256;
+		CHAR host[SIZE];
+		INT res = gethostname(host, SIZE);
+		if (res == 0)
+		{
+			res = getaddrinfo(host, PORT, &hints, &result);
+			//getaddrinfo — это версия функции в стандарте ANSI, которая обеспечивает независимый от 
+			//протокола перевод имени хоста в адрес. 
+			sockaddr_in* addrIn = (sockaddr_in*)result->ai_addr;
+			//sockaddr_in* - структура содержащая ip адрес
+			inet_ntop(AF_INET, &(addrIn->sin_addr), sendbuffer, BUFFER_LENGTH);
+			//Функция InetNtop преобразует интернет-адрес IPv4 или IPv6 в строку в стандартном формате
+			//ai_addr - содержит адрес сокета, то есть ip-адрес хоста (компьютера), ia_addr относится 
+			//к семейству AF_NET (IPv4), указателю структуры addrinfo*
+			int port = ntohs(addrIn->sin_port);
+			CHAR chPort[50];
+			sprintf(chPort, ":%d", port);
+			strcat(sendbuffer, chPort);
+		}
+	}
 	DWORD dwReciveThreadID = 0;
 	HANDLE hReceiveThread = CreateThread
 	(
@@ -86,7 +116,6 @@ void main()
 		&dwReciveThreadID
 	);
 	//Создание отдельного потока на recive (получение) данных для каждого клиента
-	CHAR sendbuffer[BUFFER_LENGTH] = "Hello Server";
 	do
 	{
 		iResult = send(connect_socket, sendbuffer, strlen(sendbuffer), 0);
@@ -128,6 +157,7 @@ void main()
 
 VOID Recieve(SOCKET connect_socket) 
 {
+	int errNum = 0;
 	DWORD dwError = 0;
 	CHAR szError[256] = {};
 	INT iResult = 0;
@@ -143,10 +173,15 @@ VOID Recieve(SOCKET connect_socket)
 		//flags - флаг на особое повдение функции
 	if (iResult > 0)
 	{
+		errNum = 0;
 		cout << recvbuffer << "(" << iResult << " Bytes)" << endl;
 	}
-	else cout << FormatLastError(WSAGetLastError(), szError) << endl;
-	} while (strcmp(recvbuffer,DECLINE_MESSAGE) != 0);
+	else
+	{
+		errNum += 1;
+		cout << FormatLastError(WSAGetLastError(), szError) << endl;
+	}
+	} while (strcmp(recvbuffer,DECLINE_MESSAGE) != 0 && errNum < 3);
 	//Поток не будет выполнять без цикла, в потоке запускается то что в цикле
 	if (strcmp(recvbuffer, DECLINE_MESSAGE) == 0)
 	{
